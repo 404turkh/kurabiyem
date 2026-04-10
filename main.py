@@ -9,22 +9,24 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 intents.guilds = True
+intents.emojis_and_stickers = True
 
 bot = commands.Bot(command_prefix="h!", intents=intents, help_command=None)
 
 EXTENSIONS = [
-    "cogs.help",
-    "cogs.setup",
+    "cogs.core",
     "cogs.welcome",
     "cogs.tickets",
     "cogs.utility",
     "cogs.youtube_system",
+    "cogs.emoji_tools",
+    "cogs.moderation",
     "cogs.logging_system",
 ]
 
 @bot.event
 async def on_ready():
-    print(f"私のクッキー is online: {bot.user}")
+    print(f"私のクッキー is online: {bot.user} ({bot.user.id})")
 
 async def main():
     if not TOKEN:
