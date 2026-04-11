@@ -6,8 +6,10 @@ from utils.translations import tr, LANGUAGE_NAMES
 CREATOR_TAG = "@5harambro"
 SUPPORT_SERVER = "https://discord.gg/d8PMsjEhGp"
 
+
 def is_admin(member: discord.Member) -> bool:
     return member.guild_permissions.administrator
+
 
 def nice_channel(guild: discord.Guild, cid):
     if not cid:
@@ -15,11 +17,13 @@ def nice_channel(guild: discord.Guild, cid):
     ch = guild.get_channel(cid)
     return ch.mention if ch else f"`{cid}`"
 
+
 def nice_role(guild: discord.Guild, rid):
     if not rid:
         return tr(guild.id, "not_set")
     role = guild.get_role(rid)
     return role.mention if role else f"`{rid}`"
+
 
 def build_main_embed(guild: discord.Guild, bot_user: discord.ClientUser):
     embed = discord.Embed(
@@ -35,6 +39,7 @@ def build_main_embed(guild: discord.Guild, bot_user: discord.ClientUser):
     embed.add_field(name=f"🔗 {tr(guild.id, 'support_server')}", value=SUPPORT_SERVER, inline=True)
     embed.set_footer(text="私のクッキー • Premium Control Center")
     return embed
+
 
 def build_setup_embed(guild: discord.Guild):
     conf = get_guild_config(guild.id)
@@ -53,6 +58,7 @@ def build_setup_embed(guild: discord.Guild):
     embed.add_field(name="YouTube Channel", value=nice_channel(guild, conf["youtube_post_channel_id"]), inline=False)
     return embed
 
+
 def build_welcome_embed(guild: discord.Guild):
     conf = get_guild_config(guild.id)
     embed = discord.Embed(
@@ -70,6 +76,7 @@ def build_welcome_embed(guild: discord.Guild):
     )
     return embed
 
+
 def build_ticket_embed(guild: discord.Guild):
     conf = get_guild_config(guild.id)
     embed = discord.Embed(
@@ -80,6 +87,7 @@ def build_ticket_embed(guild: discord.Guild):
     embed.add_field(name="Support Role", value=nice_role(guild, conf["support_role_id"]), inline=False)
     embed.add_field(name="Ticket Category", value=str(conf["ticket_category_id"] or tr(guild.id, "not_set")), inline=False)
     return embed
+
 
 def build_youtube_embed(guild: discord.Guild):
     conf = get_guild_config(guild.id)
@@ -92,6 +100,7 @@ def build_youtube_embed(guild: discord.Guild):
     embed.add_field(name="Post Channel", value=nice_channel(guild, conf["youtube_post_channel_id"]), inline=False)
     return embed
 
+
 def build_language_embed(guild: discord.Guild):
     conf = get_guild_config(guild.id)
     embed = discord.Embed(
@@ -101,6 +110,7 @@ def build_language_embed(guild: discord.Guild):
     )
     embed.add_field(name="Current", value=LANGUAGE_NAMES.get(conf["language"], conf["language"]), inline=False)
     return embed
+
 
 def build_emoji_embed(guild: discord.Guild):
     embed = discord.Embed(
@@ -114,6 +124,7 @@ def build_emoji_embed(guild: discord.Guild):
     )
     return embed
 
+
 def build_tools_embed(guild: discord.Guild):
     embed = discord.Embed(
         title=tr(guild.id, "server_tools"),
@@ -121,6 +132,7 @@ def build_tools_embed(guild: discord.Guild):
         color=discord.Color.orange(),
     )
     return embed
+
 
 def build_about_embed(guild: discord.Guild):
     embed = discord.Embed(
@@ -131,6 +143,7 @@ def build_about_embed(guild: discord.Guild):
     embed.add_field(name=tr(guild.id, "creator"), value=CREATOR_TAG, inline=False)
     embed.add_field(name=tr(guild.id, "support_server"), value=SUPPORT_SERVER, inline=False)
     return embed
+
 
 class YouTubeLinkModal(Modal):
     def __init__(self, guild_id: int):
@@ -147,10 +160,17 @@ class YouTubeLinkModal(Modal):
     async def on_submit(self, interaction: discord.Interaction):
         url = str(self.link_input.value).strip()
         if "youtube.com/" not in url and "youtu.be/" not in url:
-            return await interaction.response.send_message(tr(self.guild_id, "invalid_link"), ephemeral=True)
+            return await interaction.response.send_message(
+                tr(self.guild_id, "invalid_link"),
+                ephemeral=True
+            )
 
         update_guild_config(self.guild_id, "youtube_channel_url", url)
-        await interaction.response.send_message(tr(self.guild_id, "youtube_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "youtube_saved"),
+            ephemeral=True
+        )
+
 
 class BasePanelView(View):
     def __init__(self, guild_id: int, bot_client: discord.Client):
@@ -160,7 +180,10 @@ class BasePanelView(View):
 
     async def deny_if_not_admin(self, interaction: discord.Interaction) -> bool:
         if not isinstance(interaction.user, discord.Member) or not is_admin(interaction.user):
-            await interaction.response.send_message(tr(self.guild_id, "admin_only"), ephemeral=True)
+            await interaction.response.send_message(
+                tr(self.guild_id, "admin_only"),
+                ephemeral=True
+            )
             return True
         return False
 
@@ -170,126 +193,231 @@ class BasePanelView(View):
             view=MainPanelView(self.guild_id, self.bot_client),
         )
 
+
 class MainPanelView(BasePanelView):
     @discord.ui.button(label="Setup", style=discord.ButtonStyle.primary, emoji="🛠️")
     async def setup_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_setup_embed(interaction.guild), view=SetupPanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_setup_embed(interaction.guild),
+            view=SetupPanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Welcome", style=discord.ButtonStyle.secondary, emoji="🌸")
     async def welcome_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_welcome_embed(interaction.guild), view=WelcomePanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_welcome_embed(interaction.guild),
+            view=WelcomePanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.success, emoji="🎫")
     async def ticket_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_ticket_embed(interaction.guild), view=TicketPanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_ticket_embed(interaction.guild),
+            view=TicketPanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="YouTube", style=discord.ButtonStyle.danger, emoji="📺")
     async def yt_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_youtube_embed(interaction.guild), view=YouTubePanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_youtube_embed(interaction.guild),
+            view=YouTubePanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Emoji", style=discord.ButtonStyle.secondary, emoji="✨")
     async def emoji_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_emoji_embed(interaction.guild), view=SimpleBackView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_emoji_embed(interaction.guild),
+            view=SimpleBackView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Language", style=discord.ButtonStyle.secondary, emoji="🌐")
     async def lang_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_language_embed(interaction.guild), view=LanguagePanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_language_embed(interaction.guild),
+            view=LanguagePanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Tools", style=discord.ButtonStyle.secondary, emoji="🧰")
     async def tools_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_tools_embed(interaction.guild), view=SimpleBackView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_tools_embed(interaction.guild),
+            view=SimpleBackView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="About", style=discord.ButtonStyle.secondary, emoji="💠")
     async def about_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(embed=build_about_embed(interaction.guild), view=SimpleBackView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_about_embed(interaction.guild),
+            view=SimpleBackView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Close", style=discord.ButtonStyle.danger, emoji="❌")
     async def close_btn(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.edit_message(content=tr(self.guild_id, "close"), embed=None, view=None)
+        await interaction.response.edit_message(
+            content=tr(self.guild_id, "close"),
+            embed=None,
+            view=None
+        )
+
 
 class SimpleBackView(BasePanelView):
     @discord.ui.button(label="Main Menu", style=discord.ButtonStyle.primary, emoji="🏠")
     async def back_btn(self, interaction: discord.Interaction, button: Button):
         await self.go_home(interaction)
 
+
 class WelcomeChannelSelect(ChannelSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select welcome channel...", channel_types=[discord.ChannelType.text], min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select welcome channel...",
+            channel_types=[discord.ChannelType.text],
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "welcome_channel_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "channel_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "channel_saved"),
+            ephemeral=True
+        )
+
 
 class GoodbyeChannelSelect(ChannelSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select goodbye channel...", channel_types=[discord.ChannelType.text], min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select goodbye channel...",
+            channel_types=[discord.ChannelType.text],
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "goodbye_channel_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "channel_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "channel_saved"),
+            ephemeral=True
+        )
+
 
 class LogChannelSelect(ChannelSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select log channel...", channel_types=[discord.ChannelType.text], min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select log channel...",
+            channel_types=[discord.ChannelType.text],
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "log_channel_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "channel_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "channel_saved"),
+            ephemeral=True
+        )
+
 
 class YouTubePostChannelSelect(ChannelSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select YouTube post channel...", channel_types=[discord.ChannelType.text], min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select YouTube post channel...",
+            channel_types=[discord.ChannelType.text],
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "youtube_post_channel_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "channel_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "channel_saved"),
+            ephemeral=True
+        )
+
 
 class AutoRoleSelect(RoleSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select auto role...", min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select auto role...",
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "autorole_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "role_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "role_saved"),
+            ephemeral=True
+        )
+
 
 class SupportRoleSelect(RoleSelect):
     def __init__(self, guild_id: int):
-        super().__init__(placeholder="Select support role...", min_values=1, max_values=1)
+        super().__init__(
+            placeholder="Select support role...",
+            min_values=1,
+            max_values=1
+        )
         self.guild_id = guild_id
 
     async def callback(self, interaction: discord.Interaction):
         update_guild_config(self.guild_id, "support_role_id", self.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "role_saved"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "role_saved"),
+            ephemeral=True
+        )
+
 
 class LanguageSelect(Select):
     def __init__(self, guild_id: int):
         self.guild_id = guild_id
-        options = [discord.SelectOption(label=name, value=code) for code, name in LANGUAGE_NAMES.items()]
-        super().__init__(placeholder="Select language...", min_values=1, max_values=1, options=options)
+        options = [
+            discord.SelectOption(label=name, value=code)
+            for code, name in LANGUAGE_NAMES.items()
+        ]
+        super().__init__(
+            placeholder="Select language...",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
 
     async def callback(self, interaction: discord.Interaction):
         code = self.values[0]
         update_guild_config(self.guild_id, "language", code)
-        await interaction.response.edit_message(embed=build_language_embed(interaction.guild), view=LanguagePanelView(self.guild_id, interaction.client))
+        await interaction.response.edit_message(
+            embed=build_language_embed(interaction.guild),
+            view=LanguagePanelView(self.guild_id, interaction.client)
+        )
+
+
+class TicketCategorySelect(ChannelSelect):
+    def __init__(self, guild_id: int):
+        super().__init__(
+            placeholder="Select ticket category...",
+            channel_types=[discord.ChannelType.category],
+            min_values=1,
+            max_values=1
+        )
+        self.guild_id = guild_id
+
+    async def callback(self, interaction: discord.Interaction):
+        update_guild_config(self.guild_id, "ticket_category_id", self.values[0].id)
+        await interaction.response.send_message(
+            tr(self.guild_id, "category_saved"),
+            ephemeral=True
+        )
+
 
 class TicketCategoryView(SimpleBackView):
-    @discord.ui.channel_select(
-        placeholder="Select ticket category...",
-        channel_types=[discord.ChannelType.category],
-        min_values=1,
-        max_values=1,
-        row=0,
-    )
-    async def category_select(self, interaction: discord.Interaction, select: ChannelSelect):
-        if await self.deny_if_not_admin(interaction):
-            return
-        update_guild_config(self.guild_id, "ticket_category_id", select.values[0].id)
-        await interaction.response.send_message(tr(self.guild_id, "category_saved"), ephemeral=True)
+    def __init__(self, guild_id: int, bot_client: discord.Client):
+        super().__init__(guild_id, bot_client)
+        self.add_item(TicketCategorySelect(guild_id))
+
 
 class SetupPanelView(BasePanelView):
     def __init__(self, guild_id: int, bot_client: discord.Client):
@@ -304,11 +432,15 @@ class SetupPanelView(BasePanelView):
     async def ticket_category_btn(self, interaction: discord.Interaction, button: Button):
         if await self.deny_if_not_admin(interaction):
             return
-        await interaction.response.edit_message(embed=build_setup_embed(interaction.guild), view=TicketCategoryView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_setup_embed(interaction.guild),
+            view=TicketCategoryView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Main Menu", style=discord.ButtonStyle.primary, emoji="🏠", row=4)
     async def back_btn(self, interaction: discord.Interaction, button: Button):
         await self.go_home(interaction)
+
 
 class WelcomePanelView(BasePanelView):
     def __init__(self, guild_id: int, bot_client: discord.Client):
@@ -323,11 +455,15 @@ class WelcomePanelView(BasePanelView):
             return
         conf = get_guild_config(self.guild_id)
         update_guild_config(self.guild_id, "dm_welcome_enabled", not conf["dm_welcome_enabled"])
-        await interaction.response.edit_message(embed=build_welcome_embed(interaction.guild), view=WelcomePanelView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_welcome_embed(interaction.guild),
+            view=WelcomePanelView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Main Menu", style=discord.ButtonStyle.primary, emoji="🏠", row=4)
     async def back_btn(self, interaction: discord.Interaction, button: Button):
         await self.go_home(interaction)
+
 
 class TicketPanelView(BasePanelView):
     def __init__(self, guild_id: int, bot_client: discord.Client):
@@ -338,24 +474,32 @@ class TicketPanelView(BasePanelView):
     async def category_btn(self, interaction: discord.Interaction, button: Button):
         if await self.deny_if_not_admin(interaction):
             return
-        await interaction.response.edit_message(embed=build_ticket_embed(interaction.guild), view=TicketCategoryView(self.guild_id, self.bot_client))
+        await interaction.response.edit_message(
+            embed=build_ticket_embed(interaction.guild),
+            view=TicketCategoryView(self.guild_id, self.bot_client)
+        )
 
     @discord.ui.button(label="Send Ticket Panel", style=discord.ButtonStyle.success, emoji="📨", row=1)
     async def send_panel_btn(self, interaction: discord.Interaction, button: Button):
         if await self.deny_if_not_admin(interaction):
             return
         from cogs.tickets import TicketCreateView
+
         embed = discord.Embed(
             title=tr(self.guild_id, "ticket_title"),
             description=tr(self.guild_id, "ticket_desc"),
             color=discord.Color.green()
         )
         await interaction.channel.send(embed=embed, view=TicketCreateView(self.bot_client))
-        await interaction.response.send_message(tr(self.guild_id, "ticket_sent"), ephemeral=True)
+        await interaction.response.send_message(
+            tr(self.guild_id, "ticket_sent"),
+            ephemeral=True
+        )
 
     @discord.ui.button(label="Main Menu", style=discord.ButtonStyle.primary, emoji="🏠", row=2)
     async def back_btn(self, interaction: discord.Interaction, button: Button):
         await self.go_home(interaction)
+
 
 class YouTubePanelView(BasePanelView):
     def __init__(self, guild_id: int, bot_client: discord.Client):
@@ -371,6 +515,7 @@ class YouTubePanelView(BasePanelView):
     @discord.ui.button(label="Main Menu", style=discord.ButtonStyle.primary, emoji="🏠", row=2)
     async def back_btn(self, interaction: discord.Interaction, button: Button):
         await self.go_home(interaction)
+
 
 class LanguagePanelView(BasePanelView):
     def __init__(self, guild_id: int, bot_client: discord.Client):
