@@ -18,7 +18,7 @@ class WelcomeCog(commands.Cog):
             await ch.send(message)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         conf = get_guild_config(member.guild.id)
         welcome_channel_id = conf.get("welcome_channel_id")
         autorole_id = conf.get("autorole_id")
@@ -56,6 +56,15 @@ class WelcomeCog(commands.Cog):
                 pass
 
         await self.send_log(member.guild, f"🟢 {member.mention} joined the server.")
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        conf = get_guild_config(member.guild.id)
+        goodbye_channel_id = conf.get("goodbye_channel_id")
+        if goodbye_channel_id:
+            ch = member.guild.get_channel(goodbye_channel_id)
+            if ch:
+                await ch.send(f"🔴 {member} {tr(member.guild.id, 'goodbye')}")
 
 async def setup(bot):
     await bot.add_cog(WelcomeCog(bot))
