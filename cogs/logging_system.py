@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from utils.storage import get_guild_config
-from utils.translations import tr
 
 class LoggingCog(commands.Cog):
     def __init__(self, bot):
@@ -16,10 +15,6 @@ class LoggingCog(commands.Cog):
         channel = guild.get_channel(cid)
         if channel:
             await channel.send(message)
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member: discord.Member):
-        await self.send_log(member.guild, f"🔴 {member} {tr(member.guild.id, 'goodbye')}")
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
