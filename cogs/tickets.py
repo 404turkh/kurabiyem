@@ -14,10 +14,10 @@ class TicketCloseView(discord.ui.View):
             return
 
         if not interaction.channel.name.startswith("ticket-"):
-            await interaction.response.send_message("This is not a ticket channel.", ephemeral=True)
+            await interaction.response.send_message(tr(interaction.guild.id, "not_ticket_channel"), ephemeral=True)
             return
 
-        await interaction.response.send_message("This ticket will be deleted in 5 seconds.")
+        await interaction.response.send_message(tr(interaction.guild.id, "ticket_closing"))
         await asyncio.sleep(5)
         await interaction.channel.delete(reason=f"Ticket closed by {interaction.user}")
 
@@ -39,7 +39,7 @@ class TicketCreateView(discord.ui.View):
 
         existing = discord.utils.get(guild.text_channels, name=f"ticket-{user.id}")
         if existing:
-            await interaction.response.send_message(f"You already have a ticket: {existing.mention}", ephemeral=True)
+            await interaction.response.send_message(tr(guild.id, "already_ticket"), ephemeral=True)
             return
 
         overwrites = {
@@ -79,7 +79,11 @@ class TicketCreateView(discord.ui.View):
             description=f"{user.mention}, {tr(guild.id, 'ticket_desc')}",
             color=discord.Color.from_rgb(160, 120, 255)
         )
-        await channel.send(embed=embed, view=TicketCloseView())
+        if support_role_id:
+            await channel.send(f"<@&{support_role_id}>", embed=embed, view=TicketCloseView())
+        else:
+            await channel.send(embed=embed, view=TicketCloseView())
+
         await interaction.response.send_message(f"{tr(guild.id, 'ticket_created')}: {channel.mention}", ephemeral=True)
 
 class TicketsCog(commands.Cog):
