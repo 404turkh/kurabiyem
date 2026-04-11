@@ -22,15 +22,15 @@ def fit_text(draw, text, font_path, max_width, start_size, min_size=18):
 
 async def create_welcome_card(member):
     width, height = 1100, 400
-    card = Image.new("RGBA", (width, height), (20, 18, 34, 255))
+    card = Image.new("RGBA", (width, height), (18, 16, 30, 255))
     draw = ImageDraw.Draw(card, "RGBA")
 
     draw.rounded_rectangle((18, 18, width - 18, height - 18), radius=34, fill=(28, 26, 44, 255))
-    draw.rounded_rectangle((28, 28, width - 28, height - 28), radius=30, outline=(255, 190, 235, 255), width=3)
+    draw.rounded_rectangle((28, 28, width - 28, height - 28), radius=30, outline=(255, 200, 240, 255), width=3)
 
-    draw.ellipse((720, -80, 1100, 220), fill=(255, 120, 210, 55))
-    draw.ellipse((650, 120, 980, 430), fill=(130, 120, 255, 60))
-    draw.ellipse((-120, 180, 200, 460), fill=(255, 220, 120, 35))
+    draw.ellipse((760, -60, 1080, 220), fill=(255, 90, 180, 60))
+    draw.ellipse((650, 120, 980, 420), fill=(120, 140, 255, 55))
+    draw.ellipse((-120, 210, 220, 480), fill=(255, 210, 100, 25))
 
     avatar_asset = member.display_avatar.with_size(256)
     avatar_bytes = await avatar_asset.read()
