@@ -3,7 +3,8 @@ import aiohttp
 import feedparser
 import discord
 from discord.ext import commands, tasks
-from utils.storage import load_config, get_guild_config, update_guild_config
+from utils.storage import load_config, update_guild_config
+from utils.translations import tr
 
 CHANNEL_ID_RE = re.compile(r"/channel/(UC[a-zA-Z0-9_-]+)")
 
@@ -71,7 +72,7 @@ class YouTubeSystemCog(commands.Cog):
 
                     if last_video_url is not None:
                         embed = discord.Embed(
-                            title="📺 New YouTube Video",
+                            title=f"📺 {tr(guild.id, 'new_video')}",
                             description=f"**{latest.title}**\n{latest_link}",
                             color=discord.Color.red()
                         )
